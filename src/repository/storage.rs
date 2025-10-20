@@ -3,23 +3,32 @@ use std::io::{self, Read, Write};
 use std::path::PathBuf;
 use crate::models::{Client, Invoice, User};
 
+// File-based storage
 #[derive(Clone)]
 pub struct Storage {
     base_path: PathBuf,
 }
 
 impl Storage {
-    pub fn new(base_path: &str) -> Self {
+    pub fn new(base_path: &str) -> io::Result<Self> {
         let path = PathBuf::from(base_path);
-        fs::create_dir_all(&path).expect("Failed to create storage directory");
         
-        // Create subdirectories
+        // Create main storage directory
+        fs::create_dir_all(&path)
+            .map_err(|e| io::Error::new(io::ErrorKind::PermissionDenied, 
+                format!("Failed to create storage directory '{}': {}", base_path, e)))?;
+        
+        // Create subdirectories for organized storage
         let clients_dir = path.join("clients");
         let invoices_dir = path.join("invoices");
-        fs::create_dir_all(&clients_dir).expect("Failed to create clients directory");
-        fs::create_dir_all(&invoices_dir).expect("Failed to create invoices directory");
+        fs::create_dir_all(&clients_dir)
+            .map_err(|e| io::Error::new(io::ErrorKind::PermissionDenied, 
+                format!("Failed to create clients directory: {}", e)))?;
+        fs::create_dir_all(&invoices_dir)
+            .map_err(|e| io::Error::new(io::ErrorKind::PermissionDenied, 
+                format!("Failed to create invoices directory: {}", e)))?;
         
-        Storage { base_path: path }
+        Ok(Storage { base_path: path })
     }
     
     fn ensure_directory_exists(&self, dir_name: &str) -> io::Result<PathBuf> {
@@ -126,3 +135,4 @@ impl Storage {
         Ok(Some(user))
     }
 }
+

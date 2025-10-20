@@ -22,7 +22,7 @@ impl Client {
 
 impl fmt::Display for Client {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Name: {}\nCIF: {}\nAddress: {}", self.name, self.cif, self.address)?;
+        write!(f, "Name: {}\nCIF/NIF: {}\nAddress: {}", self.name, self.cif, self.address)?;
         if let Some(email) = &self.email {
             write!(f, "\nEmail: {}", email)?;
         }

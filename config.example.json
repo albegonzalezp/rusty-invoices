@@ -1,0 +1,23 @@
+{
+  "storage": {
+    "base_path": "~/.rusty-invoices",
+    "clients_dir": "clients",
+    "invoices_dir": "invoices"
+  },
+  "pdf": {
+    "output_dir": "~/.rusty-invoices/pdfs",
+    "font_size": 12.0,
+    "page_width": 210.0,
+    "page_height": 297.0
+  },
+  "tax": {
+    "default_iva": 21.0,
+    "default_irpf": 15.0,
+    "currency": "EUR"
+  },
+  "ui": {
+    "welcome_message": "Welcome to Rusty Invoices",
+    "confirm_prompts": true,
+    "show_debug_info": false
+  }
+}

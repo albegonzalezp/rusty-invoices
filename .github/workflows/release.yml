@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        components: rustfmt, clippy
+    
+    - name: Cache cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Cache cargo index
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Cache cargo build
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+    
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
+    
+    - name: Run tests
+      run: cargo test --verbose
+    
+    - name: Build release
+      run: cargo build --release --verbose
+    
+    - name: Create release archive
+      run: |
+        tar -czf rusty-invoices-linux-x86_64.tar.gz target/release/rusty-cli
+        zip rusty-invoices-linux-x86_64.zip target/release/rusty-cli
+    
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: rusty-invoices-linux-x86_64
+        path: |
+          rusty-invoices-linux-x86_64.tar.gz
+          rusty-invoices-linux-x86_64.zip
+
+  build-windows:
+    name: Build Release (Windows)
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    
+    - name: Cache cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Cache cargo index
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Cache cargo build
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Build release
+      run: cargo build --release --verbose
+    
+    - name: Create release archive
+      run: |
+        Compress-Archive -Path target/release/rusty-cli.exe -DestinationPath rusty-invoices-windows-x86_64.zip
+    
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: rusty-invoices-windows-x86_64
+        path: rusty-invoices-windows-x86_64.zip
+
+  build-macos:
+    name: Build Release (macOS)
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    
+    - name: Cache cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Cache cargo index
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Cache cargo build
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Build release
+      run: cargo build --release --verbose
+    
+    - name: Create release archive
+      run: |
+        tar -czf rusty-invoices-macos-x86_64.tar.gz target/release/rusty-cli
+        zip rusty-invoices-macos-x86_64.zip target/release/rusty-cli
+    
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: rusty-invoices-macos-x86_64
+        path: |
+          rusty-invoices-macos-x86_64.tar.gz
+          rusty-invoices-macos-x86_64.zip

@@ -1,5 +1,4 @@
-// PDF Service for generating professional invoice PDFs
-// Uses the printpdf library to create well-formatted invoice documents
+// PDF Service for generating invoice PDFs
 
 use crate::models::Invoice;
 use printpdf::*;
@@ -7,15 +6,17 @@ use std::fs::File;
 use std::io::{self, BufWriter};
 
 // Service for generating PDF invoices
+#[derive(Clone)]
 pub struct PdfService {
     output_dir: String,  // Directory where generated PDFs will be stored
 }
 
 impl PdfService {
-    // Create a new PDF service with specified output directory
-    pub fn new(output_dir: String) -> Self {
-        std::fs::create_dir_all(&output_dir).expect("Failed to create PDF output directory");
-        PdfService { output_dir }
+    pub fn new(output_dir: String) -> io::Result<Self> {
+        std::fs::create_dir_all(&output_dir)
+            .map_err(|e| io::Error::new(io::ErrorKind::PermissionDenied, 
+                format!("Failed to create PDF output directory '{}': {}", output_dir, e)))?;
+        Ok(PdfService { output_dir })
     }
 
     // Generate a PDF invoice from an Invoice model
@@ -25,9 +26,15 @@ impl PdfService {
         let current_layer = doc.get_page(page1).get_layer(layer1);
 
         // Load fonts
-        let font_regular = doc.add_builtin_font(BuiltinFont::Helvetica).unwrap();
-        let font_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold).unwrap();
-        let font_italic = doc.add_builtin_font(BuiltinFont::HelveticaOblique).unwrap();
+        let font_regular = doc.add_builtin_font(BuiltinFont::Helvetica)
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, 
+                format!("Failed to load regular font: {}", e)))?;
+        let font_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold)
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, 
+                format!("Failed to load bold font: {}", e)))?;
+        let font_italic = doc.add_builtin_font(BuiltinFont::HelveticaOblique)
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, 
+                format!("Failed to load italic font: {}", e)))?;
 
         // Define colors
         let blue_color = printpdf::Color::Rgb(Rgb::new(0.0, 0.35, 0.7, None));
@@ -196,7 +203,7 @@ impl PdfService {
         self.add_text_with_color(
             &current_layer,
             &font_regular,
-            &format!("CIF: {}", invoice.client.cif),
+            &format!("CIF/NIF: {}", invoice.client.cif),
             10.0,
             Mm(30.0),
             Mm(190.0),
