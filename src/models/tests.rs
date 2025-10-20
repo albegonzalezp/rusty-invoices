@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod model_tests {
     use crate::models::{Client, Invoice, Item, Rule, User};
 
     #[test]

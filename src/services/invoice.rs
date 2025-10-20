@@ -5,6 +5,17 @@ use chrono::{Local, NaiveDate};
 use std::io;
 use uuid::Uuid;
 
+// Parameters for creating an invoice
+pub struct CreateInvoiceParams {
+    pub invoice_number: Option<String>,
+    pub date: Option<String>,
+    pub due_date: Option<String>,
+    pub user: User,
+    pub client: Client,
+    pub rule: Rule,
+    pub items: Vec<Item>,
+}
+
 pub struct InvoiceService {
     storage: Storage,
     pdf_service: PdfService,
@@ -18,25 +29,18 @@ impl InvoiceService {
         }
     }
 
-    pub fn create_invoice(
-        &self,
-        invoice_number: Option<String>,
-        date: Option<String>,
-        due_date: Option<String>,
-        user: User,
-        client: Client,
-        rule: Rule,
-        items: Vec<Item>,
-    ) -> io::Result<Invoice> {
+    pub fn create_invoice(&self, params: CreateInvoiceParams) -> io::Result<Invoice> {
         // Generate invoice ID if not provided
-        let id = invoice_number.unwrap_or_else(|| Uuid::new_v4().to_string());
+        let id = params
+            .invoice_number
+            .unwrap_or_else(|| Uuid::new_v4().to_string());
 
         // Use current date if not provided
         let today = Local::now().format("%Y-%m-%d").to_string();
-        let invoice_date = date.unwrap_or_else(|| today.clone());
+        let invoice_date = params.date.unwrap_or_else(|| today.clone());
 
         // Default due date is 30 days after invoice date
-        let invoice_due_date = match due_date {
+        let invoice_due_date = match params.due_date {
             Some(due) => due,
             None => {
                 // Try to parse the invoice date
@@ -44,14 +48,14 @@ impl InvoiceService {
                     // Add 30 days
                     let due = parsed_date
                         .checked_add_days(chrono::Days::new(30))
-                        .unwrap_or_else(|| parsed_date);
+                        .unwrap_or(parsed_date);
                     due.format("%Y-%m-%d").to_string()
                 } else {
                     // If parsing fails, use today + 30 days
                     let today_parsed = Local::now().naive_local().date();
                     let due = today_parsed
                         .checked_add_days(chrono::Days::new(30))
-                        .unwrap_or_else(|| today_parsed);
+                        .unwrap_or(today_parsed);
                     due.format("%Y-%m-%d").to_string()
                 }
             }
@@ -61,10 +65,10 @@ impl InvoiceService {
             id,
             invoice_date,
             invoice_due_date,
-            user,
-            client,
-            rule,
-            items,
+            params.user,
+            params.client,
+            params.rule,
+            params.items,
         );
         self.storage.save_invoice(&invoice)?;
 

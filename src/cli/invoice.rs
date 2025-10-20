@@ -137,16 +137,18 @@ pub fn create_invoice(
             break;
         }
     }
+    let params = crate::services::invoice::CreateInvoiceParams {
+        invoice_number,
+        date: invoice_date,
+        due_date: invoice_due_date,
+        user: user.clone(),
+        client,
+        rule,
+        items,
+    };
+
     let invoice = invoice_service
-        .create_invoice(
-            invoice_number,
-            invoice_date,
-            invoice_due_date,
-            user.clone(),
-            client,
-            rule,
-            items,
-        )
+        .create_invoice(params)
         .map_err(AppError::from)?;
     println!("\n{}", style("Invoice created successfully!").green());
     println!("{}", invoice);

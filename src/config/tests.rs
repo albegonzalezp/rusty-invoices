@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod config_tests {
     use crate::config::AppConfig;
 
     #[test]

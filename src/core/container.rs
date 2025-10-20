@@ -23,7 +23,7 @@ impl ServiceContainer {
                     message: "Invalid characters in storage path".to_string(),
                 })?;
 
-        let storage = Storage::new(storage_path).map_err(|e| AppError::Io(e))?;
+        let storage = Storage::new(storage_path).map_err(AppError::Io)?;
 
         // Set up PDF service using config
         let pdfs_dir_str =
@@ -35,7 +35,7 @@ impl ServiceContainer {
                     message: "Invalid characters in PDF directory path".to_string(),
                 })?;
 
-        let pdf_service = PdfService::new(pdfs_dir_str.to_string()).map_err(|e| AppError::Io(e))?;
+        let pdf_service = PdfService::new(pdfs_dir_str.to_string()).map_err(AppError::Io)?;
 
         // Initialize services with dependencies
         let client_service = ClientService::new(storage.clone());

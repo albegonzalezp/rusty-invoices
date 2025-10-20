@@ -13,7 +13,7 @@ impl App {
     // Initialize the application
     pub fn new() -> AppResult<Self> {
         // Load configuration
-        let config = AppConfig::load().map_err(|e| crate::cli::AppError::Config(e))?;
+        let config = AppConfig::load().map_err(crate::cli::AppError::Config)?;
 
         // Show welcome message from config
         println!(

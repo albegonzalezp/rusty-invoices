@@ -32,28 +32,15 @@ impl PdfService {
         let current_layer = doc.get_page(page1).get_layer(layer1);
 
         // Load fonts
-        let font_regular = doc.add_builtin_font(BuiltinFont::Helvetica).map_err(|e| {
-            io::Error::new(
-                io::ErrorKind::Other,
-                format!("Failed to load regular font: {}", e),
-            )
-        })?;
+        let font_regular = doc
+            .add_builtin_font(BuiltinFont::Helvetica)
+            .map_err(|e| io::Error::other(format!("Failed to load regular font: {}", e)))?;
         let font_bold = doc
             .add_builtin_font(BuiltinFont::HelveticaBold)
-            .map_err(|e| {
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Failed to load bold font: {}", e),
-                )
-            })?;
+            .map_err(|e| io::Error::other(format!("Failed to load bold font: {}", e)))?;
         let font_italic = doc
             .add_builtin_font(BuiltinFont::HelveticaOblique)
-            .map_err(|e| {
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Failed to load italic font: {}", e),
-                )
-            })?;
+            .map_err(|e| io::Error::other(format!("Failed to load italic font: {}", e)))?;
 
         // Define colors
         let blue_color = printpdf::Color::Rgb(Rgb::new(0.0, 0.35, 0.7, None));
@@ -519,14 +506,14 @@ impl PdfService {
         let mut writer = BufWriter::new(file);
 
         // Save the PDF and convert any errors to io::Error
-        doc.save(&mut writer).map_err(|e| {
-            io::Error::new(io::ErrorKind::Other, format!("PDF generation error: {}", e))
-        })?;
+        doc.save(&mut writer)
+            .map_err(|e| io::Error::other(format!("PDF generation error: {}", e)))?;
 
         Ok(output_path)
     }
 
     // Helper method to add text with a specific color
+    #[allow(clippy::too_many_arguments)]
     fn add_text_with_color(
         &self,
         layer: &PdfLayerReference,
@@ -542,6 +529,7 @@ impl PdfService {
     }
 
     // Helper method to draw a line
+    #[allow(clippy::too_many_arguments)]
     fn draw_line(
         &self,
         layer: &PdfLayerReference,

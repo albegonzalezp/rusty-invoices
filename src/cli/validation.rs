@@ -57,7 +57,7 @@ pub fn validate_date(date_str: &str) -> AppResult<()> {
     }
 
     // Date format validation
-    if let Err(_) = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
+    if chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d").is_err() {
         return Err(AppError::Validation(ValidationError::InvalidDate {
             date: date_str.to_string(),
         }));
@@ -89,7 +89,7 @@ pub fn validate_iban(iban: &str) -> AppResult<()> {
 }
 
 pub fn validate_percentage(value: f32, _name: &str) -> AppResult<()> {
-    if value < 0.0 || value > 100.0 {
+    if !(0.0..=100.0).contains(&value) {
         return Err(AppError::Validation(ValidationError::InvalidPercentage {
             value,
         }));
