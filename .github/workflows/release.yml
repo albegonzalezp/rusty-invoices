@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
     - uses: actions/checkout@v4
@@ -68,6 +70,8 @@ jobs:
   build-windows:
     name: Build Release (Windows)
     runs-on: windows-latest
+    permissions:
+      contents: read
     
     steps:
     - uses: actions/checkout@v4
@@ -111,6 +115,8 @@ jobs:
   build-macos:
     name: Build Release (macOS)
     runs-on: macos-latest
+    permissions:
+      contents: read
     
     steps:
     - uses: actions/checkout@v4
@@ -158,6 +164,9 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     needs: [build, build-windows, build-macos]
+    permissions:
+      contents: write
+      packages: write
     
     steps:
     - uses: actions/checkout@v4
