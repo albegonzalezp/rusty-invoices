@@ -7,47 +7,47 @@ pub fn validate_email(email: &str) -> AppResult<()> {
     if email.is_empty() {
         return Ok(());
     }
-    
+
     // Email format validation
     if !email.contains('@') || !email.contains('.') {
-        return Err(AppError::Validation(
-            ValidationError::InvalidEmail { email: email.to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidEmail {
+            email: email.to_string(),
+        }));
     }
-    
+
     // Check that @ is not at the beginning or end
     if email.starts_with('@') || email.ends_with('@') {
-        return Err(AppError::Validation(
-            ValidationError::InvalidEmail { email: email.to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidEmail {
+            email: email.to_string(),
+        }));
     }
-    
+
     // Check that there's at least one character before @
     if let Some(at_pos) = email.find('@') {
         if at_pos == 0 {
-            return Err(AppError::Validation(
-                ValidationError::InvalidEmail { email: email.to_string() }
-            ));
+            return Err(AppError::Validation(ValidationError::InvalidEmail {
+                email: email.to_string(),
+            }));
         }
     }
-    
+
     Ok(())
 }
 
 pub fn validate_cif(cif: &str) -> AppResult<()> {
     if cif.is_empty() {
-        return Err(AppError::Validation(
-            ValidationError::RequiredFieldEmpty { field: "CIF/NIE".to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::RequiredFieldEmpty {
+            field: "CIF/NIE".to_string(),
+        }));
     }
-    
+
     // CIF/NIE length check
     if cif.len() < 8 || cif.len() > 12 {
-        return Err(AppError::Validation(
-            ValidationError::InvalidCif { cif: cif.to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidCif {
+            cif: cif.to_string(),
+        }));
     }
-    
+
     Ok(())
 }
 
@@ -55,14 +55,14 @@ pub fn validate_date(date_str: &str) -> AppResult<()> {
     if date_str.is_empty() {
         return Ok(());
     }
-    
+
     // Date format validation
     if let Err(_) = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
-        return Err(AppError::Validation(
-            ValidationError::InvalidDate { date: date_str.to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidDate {
+            date: date_str.to_string(),
+        }));
     }
-    
+
     Ok(())
 }
 
@@ -70,32 +70,31 @@ pub fn validate_iban(iban: &str) -> AppResult<()> {
     if iban.is_empty() {
         return Ok(());
     }
-    
-    // IBAN length check 
+
+    // IBAN length check
     if iban.len() < 15 || iban.len() > 34 {
-        return Err(AppError::Validation(
-            ValidationError::InvalidIban { iban: iban.to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidIban {
+            iban: iban.to_string(),
+        }));
     }
-    
+
     // IBAN alphanumeric check
     if !iban.chars().all(|c| c.is_alphanumeric()) {
-        return Err(AppError::Validation(
-            ValidationError::InvalidIban { iban: iban.to_string() }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidIban {
+            iban: iban.to_string(),
+        }));
     }
-    
+
     Ok(())
 }
 
 pub fn validate_percentage(value: f32, _name: &str) -> AppResult<()> {
-    
     if value < 0.0 || value > 100.0 {
-        return Err(AppError::Validation(
-            ValidationError::InvalidPercentage { value }
-        ));
+        return Err(AppError::Validation(ValidationError::InvalidPercentage {
+            value,
+        }));
     }
-    
+
     Ok(())
 }
 

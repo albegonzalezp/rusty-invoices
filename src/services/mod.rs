@@ -1,7 +1,7 @@
 pub mod client;
-pub mod pdf;
 pub mod invoice;
+pub mod pdf;
 
 pub use client::ClientService;
+pub use invoice::InvoiceService;
 pub use pdf::PdfService;
-pub use invoice::InvoiceService; 

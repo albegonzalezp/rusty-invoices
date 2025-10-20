@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::models::{User, Client, Invoice, Item, Rule};
+    use crate::models::{Client, Invoice, Item, Rule, User};
 
     #[test]
     fn test_user_creation() {
@@ -21,11 +21,7 @@ mod tests {
 
     #[test]
     fn test_item_creation() {
-        let item = Item::new(
-            "Web Development".to_string(),
-            1,
-            1000.0,
-        );
+        let item = Item::new("Web Development".to_string(), 1, 1000.0);
 
         assert_eq!(item.description, "Web Development");
         assert_eq!(item.quantity, 1);

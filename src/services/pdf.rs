@@ -8,14 +8,20 @@ use std::io::{self, BufWriter};
 // Service for generating PDF invoices
 #[derive(Clone)]
 pub struct PdfService {
-    output_dir: String,  // Directory where generated PDFs will be stored
+    output_dir: String, // Directory where generated PDFs will be stored
 }
 
 impl PdfService {
     pub fn new(output_dir: String) -> io::Result<Self> {
-        std::fs::create_dir_all(&output_dir)
-            .map_err(|e| io::Error::new(io::ErrorKind::PermissionDenied, 
-                format!("Failed to create PDF output directory '{}': {}", output_dir, e)))?;
+        std::fs::create_dir_all(&output_dir).map_err(|e| {
+            io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                format!(
+                    "Failed to create PDF output directory '{}': {}",
+                    output_dir, e
+                ),
+            )
+        })?;
         Ok(PdfService { output_dir })
     }
 
@@ -26,15 +32,28 @@ impl PdfService {
         let current_layer = doc.get_page(page1).get_layer(layer1);
 
         // Load fonts
-        let font_regular = doc.add_builtin_font(BuiltinFont::Helvetica)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, 
-                format!("Failed to load regular font: {}", e)))?;
-        let font_bold = doc.add_builtin_font(BuiltinFont::HelveticaBold)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, 
-                format!("Failed to load bold font: {}", e)))?;
-        let font_italic = doc.add_builtin_font(BuiltinFont::HelveticaOblique)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, 
-                format!("Failed to load italic font: {}", e)))?;
+        let font_regular = doc.add_builtin_font(BuiltinFont::Helvetica).map_err(|e| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                format!("Failed to load regular font: {}", e),
+            )
+        })?;
+        let font_bold = doc
+            .add_builtin_font(BuiltinFont::HelveticaBold)
+            .map_err(|e| {
+                io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("Failed to load bold font: {}", e),
+                )
+            })?;
+        let font_italic = doc
+            .add_builtin_font(BuiltinFont::HelveticaOblique)
+            .map_err(|e| {
+                io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("Failed to load italic font: {}", e),
+                )
+            })?;
 
         // Define colors
         let blue_color = printpdf::Color::Rgb(Rgb::new(0.0, 0.35, 0.7, None));
@@ -63,7 +82,7 @@ impl PdfService {
             Mm(275.0),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -83,7 +102,7 @@ impl PdfService {
             Mm(260.0),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -103,7 +122,7 @@ impl PdfService {
             Mm(245.0),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -124,7 +143,7 @@ impl PdfService {
             Mm(240.0),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -134,7 +153,7 @@ impl PdfService {
             Mm(235.0),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -144,7 +163,7 @@ impl PdfService {
             Mm(230.0),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -154,7 +173,7 @@ impl PdfService {
             Mm(225.0),
             black_color.clone(),
         );
-        
+
         if let Some(email) = &invoice.user.email {
             self.add_text_with_color(
                 &current_layer,
@@ -166,7 +185,7 @@ impl PdfService {
                 black_color.clone(),
             );
         }
-        
+
         if let Some(iban) = &invoice.user.iban {
             self.add_text_with_color(
                 &current_layer,
@@ -189,7 +208,7 @@ impl PdfService {
             Mm(200.0),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -199,7 +218,7 @@ impl PdfService {
             Mm(195.0),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -209,7 +228,7 @@ impl PdfService {
             Mm(190.0),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -219,7 +238,7 @@ impl PdfService {
             Mm(185.0),
             black_color.clone(),
         );
-        
+
         if let Some(email) = &invoice.client.email {
             self.add_text_with_color(
                 &current_layer,
@@ -234,7 +253,7 @@ impl PdfService {
 
         // Add table header
         let table_y = 165.0;
-        
+
         // Simple header with bold text
         self.add_text_with_color(
             &current_layer,
@@ -245,7 +264,7 @@ impl PdfService {
             Mm(table_y),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -255,7 +274,7 @@ impl PdfService {
             Mm(table_y),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -265,7 +284,7 @@ impl PdfService {
             Mm(table_y),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -296,7 +315,7 @@ impl PdfService {
             } else {
                 item.description.clone()
             };
-            
+
             // Add description
             self.add_text_with_color(
                 &current_layer,
@@ -307,7 +326,7 @@ impl PdfService {
                 Mm(y_position),
                 black_color.clone(),
             );
-            
+
             // Add other item details
             self.add_text_with_color(
                 &current_layer,
@@ -318,7 +337,7 @@ impl PdfService {
                 Mm(y_position),
                 black_color.clone(),
             );
-            
+
             self.add_text_with_color(
                 &current_layer,
                 &font_regular,
@@ -328,7 +347,7 @@ impl PdfService {
                 Mm(y_position),
                 black_color.clone(),
             );
-            
+
             self.add_text_with_color(
                 &current_layer,
                 &font_regular,
@@ -338,7 +357,7 @@ impl PdfService {
                 Mm(y_position),
                 black_color.clone(),
             );
-            
+
             // Draw a light separator line between items (optional)
             if i < invoice.items.len() - 1 {
                 self.draw_line(
@@ -351,7 +370,7 @@ impl PdfService {
                     light_gray_color.clone(),
                 );
             }
-            
+
             // Move to next row position with reduced spacing
             y_position -= 7.0; // Reduced from 10.0 to 7.0
         }
@@ -368,7 +387,7 @@ impl PdfService {
         );
 
         y_position -= 4.0; // Reduced spacing
-        
+
         // Add summary
         self.add_text_with_color(
             &current_layer,
@@ -379,7 +398,7 @@ impl PdfService {
             Mm(y_position),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -389,9 +408,9 @@ impl PdfService {
             Mm(y_position),
             black_color.clone(),
         );
-        
+
         y_position -= 5.0; // Reduced spacing
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -401,7 +420,7 @@ impl PdfService {
             Mm(y_position),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -411,9 +430,9 @@ impl PdfService {
             Mm(y_position),
             black_color.clone(),
         );
-        
+
         y_position -= 5.0; // Reduced spacing
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -423,7 +442,7 @@ impl PdfService {
             Mm(y_position),
             black_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_regular,
@@ -433,9 +452,9 @@ impl PdfService {
             Mm(y_position),
             black_color.clone(),
         );
-        
+
         y_position -= 8.0; // Reduced spacing
-        
+
         // Draw a line above total
         self.draw_line(
             &current_layer,
@@ -446,9 +465,9 @@ impl PdfService {
             1.0,
             black_color.clone(),
         );
-        
+
         y_position -= 5.0; // Reduced spacing
-        
+
         // Total amount with black text (no background)
         self.add_text_with_color(
             &current_layer,
@@ -459,7 +478,7 @@ impl PdfService {
             Mm(y_position),
             blue_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_bold,
@@ -469,7 +488,7 @@ impl PdfService {
             Mm(y_position),
             blue_color.clone(),
         );
-        
+
         // Add footer
         let footer_y = 30.0;
         self.draw_line(
@@ -481,7 +500,7 @@ impl PdfService {
             0.5,
             gray_color.clone(),
         );
-        
+
         self.add_text_with_color(
             &current_layer,
             &font_italic,
@@ -494,11 +513,11 @@ impl PdfService {
 
         // Save the PDF
         let output_path = format!("{}/invoice_{}.pdf", self.output_dir, invoice.id);
-        
+
         // Create file and handle errors
         let file = File::create(&output_path)?;
         let mut writer = BufWriter::new(file);
-        
+
         // Save the PDF and convert any errors to io::Error
         doc.save(&mut writer).map_err(|e| {
             io::Error::new(io::ErrorKind::Other, format!("PDF generation error: {}", e))
@@ -521,7 +540,7 @@ impl PdfService {
         layer.set_fill_color(color);
         layer.use_text(text, size, x, y, font);
     }
-    
+
     // Helper method to draw a line
     fn draw_line(
         &self,
@@ -535,13 +554,13 @@ impl PdfService {
     ) {
         layer.set_outline_thickness(thickness);
         layer.set_outline_color(color);
-        
+
         // Create a line from point 1 to point 2
         let line = Line {
             points: vec![(Point::new(x1, y1), false), (Point::new(x2, y2), false)],
             is_closed: false,
         };
-        
+
         // Draw the line
         layer.add_line(line);
     }

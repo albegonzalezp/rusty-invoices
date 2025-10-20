@@ -5,7 +5,7 @@ mod tests {
     #[test]
     fn test_default_config() {
         let config = AppConfig::default();
-        
+
         assert_eq!(config.tax.default_iva, 21.0);
         assert_eq!(config.tax.default_irpf, 15.0);
         assert_eq!(config.tax.currency, "EUR");
@@ -27,7 +27,7 @@ mod tests {
     fn test_config_validation_invalid_iva() {
         let mut config = AppConfig::default();
         config.tax.default_iva = 150.0; // Invalid: > 100
-        
+
         assert!(config.validate().is_err());
     }
 
@@ -35,7 +35,7 @@ mod tests {
     fn test_config_validation_invalid_irpf() {
         let mut config = AppConfig::default();
         config.tax.default_irpf = -10.0; // Invalid: < 0
-        
+
         assert!(config.validate().is_err());
     }
 }

@@ -1,14 +1,14 @@
 pub mod client;
-pub mod user;
+pub mod invoice;
 pub mod item;
 pub mod rules;
-pub mod invoice;
+pub mod user;
 
 #[cfg(test)]
 mod tests;
 
 pub use client::Client;
-pub use user::User;
+pub use invoice::Invoice;
 pub use item::Item;
 pub use rules::Rule;
-pub use invoice::Invoice;
+pub use user::User;

@@ -1,22 +1,21 @@
-use dialoguer::Select;
-use crate::models::User;
-use crate::services::{ClientService, InvoiceService};
-use crate::repository::Storage;
-use super::error::AppError;
-use super::user::update_user;
 use super::client::{create_client, list_clients};
+use super::error::AppError;
 use super::invoice::{create_invoice, list_invoices};
+use super::user::update_user;
+use crate::models::User;
+use crate::repository::Storage;
+use crate::services::{ClientService, InvoiceService};
+use dialoguer::Select;
 
 // Main menu options
 const MENU_OPTIONS: &[&str] = &[
     "Create invoice",
-    "List invoices", 
+    "List invoices",
     "Create client",
     "List clients",
     "Update user profile",
     "Exit",
 ];
-
 
 pub fn show_main_menu(
     client_service: &ClientService,
@@ -29,7 +28,7 @@ pub fn show_main_menu(
         .items(MENU_OPTIONS)
         .default(0)
         .interact()?;
-    
+
     // Handle menu selection
     match selection {
         0 => create_invoice(client_service, invoice_service, user)?,
@@ -38,13 +37,13 @@ pub fn show_main_menu(
         3 => list_clients(client_service)?,
         4 => {
             *user = update_user(storage, user)?;
-        },
+        }
         5 => {
             println!("Thank you for using Rusty Invoices!");
             return Ok(true); // Exit application
         }
         _ => unreachable!(),
     }
-    
+
     Ok(false) // Continue application loop
 }

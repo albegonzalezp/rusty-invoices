@@ -1,19 +1,19 @@
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use crate::config::error::ConfigError;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 // Application configuration structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     // Storage configuration
     pub storage: StorageConfig,
-    
+
     // PDF configuration
     pub pdf: PdfConfig,
-    
+
     // Tax configuration
     pub tax: TaxConfig,
-    
+
     // UI configuration
     pub ui: UiConfig,
 }
@@ -54,116 +54,117 @@ impl AppConfig {
         if let Ok(config) = Self::load_from_file() {
             return Ok(config);
         }
-        
+
         // Fall back to environment variables
         if let Ok(config) = Self::load_from_env() {
             return Ok(config);
         }
-        
+
         // Use defaults as last resort
         Ok(Self::default())
     }
-    
+
     // Load configuration from file
     fn load_from_file() -> Result<Self, ConfigError> {
         let config_path = Self::get_config_path()?;
-        
+
         if !config_path.exists() {
             return Err(ConfigError::NotFound {
-                message: format!("Configuration file not found at: {}", config_path.display())
+                message: format!("Configuration file not found at: {}", config_path.display()),
             });
         }
-        
+
         let config_content = std::fs::read_to_string(&config_path)?;
-        let config: AppConfig = serde_json::from_str(&config_content)
-            .map_err(|e| ConfigError::ParseError { 
-                message: format!("Invalid JSON: {}", e) 
+        let config: AppConfig =
+            serde_json::from_str(&config_content).map_err(|e| ConfigError::ParseError {
+                message: format!("Invalid JSON: {}", e),
             })?;
-        
+
         // Validate the loaded configuration
         config.validate()?;
         Ok(config)
     }
-    
+
     // Load configuration from environment variables
     fn load_from_env() -> Result<Self, ConfigError> {
         let mut config = Self::default();
-        
+
         // Override with environment variables if they exist
         if let Ok(storage_path) = std::env::var("RUSTY_INVOICES_STORAGE_PATH") {
             config.storage.base_path = PathBuf::from(storage_path);
         }
-        
+
         if let Ok(pdf_dir) = std::env::var("RUSTY_INVOICES_PDF_DIR") {
             config.pdf.output_dir = PathBuf::from(pdf_dir);
         }
-        
+
         if let Ok(iva) = std::env::var("RUSTY_INVOICES_DEFAULT_IVA") {
-            config.tax.default_iva = iva.parse()
-                .map_err(|e| ConfigError::ParseError { 
-                    message: format!("Invalid IVA value: {}", e) 
-                })?;
+            config.tax.default_iva = iva.parse().map_err(|e| ConfigError::ParseError {
+                message: format!("Invalid IVA value: {}", e),
+            })?;
         }
-        
+
         if let Ok(irpf) = std::env::var("RUSTY_INVOICES_DEFAULT_IRPF") {
-            config.tax.default_irpf = irpf.parse()
-                .map_err(|e| ConfigError::ParseError { 
-                    message: format!("Invalid IRPF value: {}", e) 
-                })?;
+            config.tax.default_irpf = irpf.parse().map_err(|e| ConfigError::ParseError {
+                message: format!("Invalid IRPF value: {}", e),
+            })?;
         }
-        
+
         config.validate()?;
         Ok(config)
     }
-    
+
     // Get the configuration file path
     fn get_config_path() -> Result<PathBuf, ConfigError> {
-        let home_dir = dirs::home_dir()
-            .ok_or_else(|| ConfigError::NotFound { 
-                message: "Home directory not found".to_string() 
-            })?;
-        
+        let home_dir = dirs::home_dir().ok_or_else(|| ConfigError::NotFound {
+            message: "Home directory not found".to_string(),
+        })?;
+
         Ok(home_dir.join(".rusty-invoices").join("config.json"))
     }
-    
-    
+
     // Validate configuration values
     pub fn validate(&self) -> Result<(), ConfigError> {
         // Validate tax percentages
         if self.tax.default_iva < 0.0 || self.tax.default_iva > 100.0 {
             return Err(ConfigError::ValidationError {
-                message: format!("IVA percentage must be between 0 and 100, got: {}", self.tax.default_iva)
+                message: format!(
+                    "IVA percentage must be between 0 and 100, got: {}",
+                    self.tax.default_iva
+                ),
             });
         }
-        
+
         if self.tax.default_irpf < 0.0 || self.tax.default_irpf > 100.0 {
             return Err(ConfigError::ValidationError {
-                message: format!("IRPF percentage must be between 0 and 100, got: {}", self.tax.default_irpf)
+                message: format!(
+                    "IRPF percentage must be between 0 and 100, got: {}",
+                    self.tax.default_irpf
+                ),
             });
         }
-        
+
         // Validate PDF dimensions
         if self.pdf.page_width <= 0.0 || self.pdf.page_height <= 0.0 {
             return Err(ConfigError::ValidationError {
-                message: "PDF page dimensions must be positive".to_string()
+                message: "PDF page dimensions must be positive".to_string(),
             });
         }
-        
+
         if self.pdf.font_size <= 0.0 {
             return Err(ConfigError::ValidationError {
-                message: "Font size must be positive".to_string()
+                message: "Font size must be positive".to_string(),
             });
         }
-        
+
         Ok(())
     }
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
-        let home_dir = dirs::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."));
-        
+        let home_dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+
         AppConfig {
             storage: StorageConfig {
                 base_path: home_dir.join(".rusty-invoices"),
