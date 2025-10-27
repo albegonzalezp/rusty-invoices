@@ -60,7 +60,7 @@ jobs:
         zip rusty-invoices-linux-x86_64.zip target/release/rusty-cli
     
     - name: Upload release assets
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: rusty-invoices-linux-x86_64
         path: |
@@ -107,7 +107,7 @@ jobs:
         Compress-Archive -Path target/release/rusty-cli.exe -DestinationPath rusty-invoices-windows-x86_64.zip
     
     - name: Upload release assets
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: rusty-invoices-windows-x86_64
         path: rusty-invoices-windows-x86_64.zip
@@ -153,7 +153,7 @@ jobs:
         zip rusty-invoices-macos-x86_64.zip target/release/rusty-cli
     
     - name: Upload release assets
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: rusty-invoices-macos-x86_64
         path: |
